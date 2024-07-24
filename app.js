@@ -33,7 +33,7 @@ const askQuestion = (index, answers) => {
 
         readline.question('Do you want to enter another set of answers? (yes/no) ', (response) => {
             if (response.toLowerCase() === 'yes') {
-                askQuestion(0, []); // Start a new set of answers
+                askQuestion(0, []); 
             } else {
                 readline.close();
                 console.log('All sets of Players', multipleAnswers);
@@ -46,4 +46,4 @@ const calculateAvg = (APT, SET) => {
     return (APT + SET) / 2;
 };
 
-askQuestion(0, []);
+askQuestion(0, []); 
