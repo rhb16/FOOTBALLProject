@@ -18,6 +18,25 @@ const selectTeam = (players) => {
     console.log('Selected Team:', team);
 };
 
+const generateReport = (players) => {
+    const positionCounts = {
+        defender: 0,
+        attacker: 0,
+        midfielder: 0
+    };
+
+    players.forEach(player => {
+        if (positionCounts.hasOwnProperty(player.position)) {
+            positionCounts[player.position]++;
+        }
+    });
+
+    console.log('Player Count by Position:');
+    for (const [position, count] of Object.entries(positionCounts)) {
+        console.log(`${position.charAt(0).toUpperCase() + position.slice(1)}: ${count}`);
+    }
+};
+
 const main = () => {
     askPositionLimits(() => {
         const askForPlayerDetails = () => {
@@ -44,6 +63,7 @@ const main = () => {
                     } else {
                         readline.close();
                         console.log('All sets of Players:', multiplePlayers);
+                        generateReport(multiplePlayers);  // Generate the report before selecting the team
                         selectTeam(multiplePlayers);
                     }
                 });
