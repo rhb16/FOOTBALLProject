@@ -12,14 +12,25 @@ const questions = [
     'What is your national association (England, Northern Ireland, Scotland, Wales)? '
 ];
 
+const validPositions = ['defender', 'attacker', 'midfielder'];
+const validNationalAssociations = ['England', 'Northern Ireland', 'Scotland', 'Wales'];
+
 const multiplePlayers = [];
 let playerCount = 0;
 
 const askQuestion = (index, answers) => {
     if (index < questions.length) {
         readline.question(questions[index], (answer) => {
-            answers.push(answer);
-            askQuestion(index + 1, answers);
+            if (index === 4 && !validPositions.includes(answer.toLowerCase())) {
+                console.log(`Please enter a valid position: ${validPositions.join(', ')}`);
+                askQuestion(index, answers);
+            } else if (index === 5 && !validNationalAssociations.includes(answer)) {
+                console.log(`Please enter a valid national association: ${validNationalAssociations.join(', ')}`);
+                askQuestion(index, answers);
+            } else {
+                answers.push(answer);
+                askQuestion(index + 1, answers);
+            }
         });
     } else {
         playerCount++;
@@ -49,6 +60,7 @@ const askQuestion = (index, answers) => {
         });
     }
 };
+
 const calculateAvg = (APT, SET) => {
     return (APT + SET) / 2;
 };
