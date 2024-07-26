@@ -72,6 +72,26 @@ const generateReport = (players) => {
     console.log(table(countData));
 };
 
+const findHighestAPT = (players) => {
+    let highestAPTPlayer = players[0];
+    players.forEach(player => {
+        if (player.APT > highestAPTPlayer.APT) {
+            highestAPTPlayer = player;
+        }
+    });
+    return highestAPTPlayer;
+};
+
+const findLowestAVG = (players) => {
+    let lowestAVGPlayer = players[0];
+    players.forEach(player => {
+        if (player.AVG < lowestAVGPlayer.AVG) {
+            lowestAVGPlayer = player;
+        }
+    });
+    return lowestAVGPlayer;
+};
+
 const main = () => {
     askPositionLimits(() => {
         const askForPlayerDetails = () => {
@@ -109,6 +129,32 @@ const main = () => {
                         ])));
                         generateReport(multiplePlayers);  // Generate the report before selecting the team
                         selectTeam(multiplePlayers);
+
+                        // Find the player with the highest APT score
+                        const highestAPTPlayer = findHighestAPT(multiplePlayers);
+                        console.log('Player with the Highest APT Score:');
+                        console.log(table([[
+                            highestAPTPlayer.firstName,
+                            highestAPTPlayer.lastName,
+                            highestAPTPlayer.APT,
+                            highestAPTPlayer.SET,
+                            highestAPTPlayer.position,
+                            highestAPTPlayer.nationalAssociation,
+                            highestAPTPlayer.AVG
+                        ]]));
+
+                        // Find the player with the lowest AVG score
+                        const lowestAVGPlayer = findLowestAVG(multiplePlayers);
+                        console.log('Player with the Lowest AVG Score:');
+                        console.log(table([[
+                            lowestAVGPlayer.firstName,
+                            lowestAVGPlayer.lastName,
+                            lowestAVGPlayer.APT,
+                            lowestAVGPlayer.SET,
+                            lowestAVGPlayer.position,
+                            lowestAVGPlayer.nationalAssociation,
+                            lowestAVGPlayer.AVG
+                        ]]));
                     }
                 });
             });
