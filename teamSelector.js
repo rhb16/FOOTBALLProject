@@ -42,6 +42,7 @@ const findLowestAVG = () => {
     return players.reduce((min, player) => (player.AVG < min.AVG ? player : min), players[0]);
 };
 
+// Helper function to print player table
 const printPlayerTable = (players, headers, title) => {
     const table = new Table({
         head: headers,
@@ -58,6 +59,7 @@ const printPlayerTable = (players, headers, title) => {
     return table.toString();
 };
 
+// Helper function to save player data to an Excel sheet
 const saveToExcel = async (sheetName, data, headers) => {
     const workbook = new ExcelJS.Workbook();
     const filePath = 'football_club_data.xlsx';
@@ -65,6 +67,10 @@ const saveToExcel = async (sheetName, data, headers) => {
     let worksheet;
     try {
         await workbook.xlsx.readFile(filePath);
+        worksheet = workbook.getWorksheet(sheetName);
+        if (worksheet) {
+            workbook.removeWorksheet(sheetName);
+        }
         worksheet = workbook.addWorksheet(sheetName);
     } catch (error) {
         worksheet = workbook.addWorksheet(sheetName);
@@ -79,6 +85,7 @@ const saveToExcel = async (sheetName, data, headers) => {
     await workbook.xlsx.writeFile(filePath);
 };
 
+// Sample run for each task
 const main = () => {
     console.log('Task A.1: Input Player Details');
     const inputPlayers = [];
@@ -119,7 +126,7 @@ const main = () => {
                             AVG: player.AVG.toFixed(1),
                             Position: player.position
                         }));
-                        printPlayerTable(team, headers, 'Task A.3: Selected Team of Ten Players');
+                        printPlayerTable(team, headers, 'Task A.3: Selected Team of Players');
                         await saveToExcel('Selected Team', teamData, headers);
 
                         readline.question('Enter the number of players required: ', async (count) => {
@@ -157,6 +164,10 @@ const main = () => {
                             let worksheet;
                             try {
                                 await workbook.xlsx.readFile(filePath);
+                                worksheet = workbook.getWorksheet('Count Players by Position');
+                                if (worksheet) {
+                                    workbook.removeWorksheet('Count Players by Position');
+                                }
                                 worksheet = workbook.addWorksheet('Count Players by Position');
                             } catch (error) {
                                 worksheet = workbook.addWorksheet('Count Players by Position');
@@ -222,7 +233,6 @@ const main = () => {
             });
         }
     };
-
     getPlayerInput(addPlayerCallback);
 };
 
