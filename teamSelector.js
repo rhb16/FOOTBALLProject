@@ -1,167 +1,229 @@
-const { askPositionLimits, askQuestion, readline, multiplePlayers, positionLimits } = require('./inputHandler');
-const { table } = require('table');
+const { players, savePlayers } = require('./playerData');
+const { getPlayerInput, askContinueInput, readline } = require('./inputHandler');
+const fs = require('fs');
+const Table = require('cli-table3');
+const ExcelJS = require('exceljs');
 
-const calculateAvg = (APT, SET) => {
-    return (APT + SET) / 2;
-};
-
-const selectTeam = (players) => {
-    const defenders = players.filter(player => player.position === 'defender').sort((a, b) => b.SET - a.SET);
-    const attackers = players.filter(player => player.position === 'attacker').sort((a, b) => b.SET - a.SET);
-    const midfielders = players.filter(player => player.position === 'midfielder').sort((a, b) => b.SET - a.SET);
-
-    const team = [
-        ...defenders.slice(0, positionLimits.defender),
-        ...attackers.slice(0, positionLimits.attacker),
-        ...midfielders.slice(0, positionLimits.midfielder)
-    ];
-
-    console.log('Selected Team:');
-    console.log(table(team.map(player => [
-        player.firstName,
-        player.lastName,
-        player.APT,
-        player.SET,
-        player.position,
-        player.nationalAssociation,
-        player.AVG
-    ])));
-};
-
-const generateReport = (players) => {
-    // Sort players by APT from high to low
-    const sortedPlayers = players.sort((a, b) => b.APT - a.APT);
-
-    console.log('Sorted Player Data by APT (from high to low):');
-    const playerData = [
-        ['First Name', 'Last Name', 'APT', 'SET', 'Position', 'National Association', 'AVG']
-    ];
+const selectTeam = (defendersCount, midfieldersCount, attackersCount) => {
+    const selectedTeam = [];
+    const sortedPlayers = players.sort((a, b) => b.SET - a.SET);
+    const positions = { Defender: 0, Midfielder: 0, Attacker: 0 };
     sortedPlayers.forEach(player => {
-        playerData.push([
-            player.firstName,
-            player.lastName,
-            player.APT,
-            player.SET,
-            player.position,
-            player.nationalAssociation,
-            player.AVG
-        ]);
-    });
-    console.log(table(playerData));
-
-    // Count players by position
-    const positionCounts = {
-        defender: 0,
-        attacker: 0,
-        midfielder: 0
-    };
-
-    players.forEach(player => {
-        if (positionCounts.hasOwnProperty(player.position)) {
-            positionCounts[player.position]++;
+        if (positions[player.position] < { Defender: defendersCount, Midfielder: midfieldersCount, Attacker: attackersCount }[player.position]) {
+            selectedTeam.push(player);
+            positions[player.position]++;
         }
     });
+    return selectedTeam.slice(0, 10);
+};
 
-    console.log('\nPlayer Count by Position:');
-    const countData = [
-        ['Position', 'Count']
-    ];
-    for (const [position, count] of Object.entries(positionCounts)) {
-        countData.push([position.charAt(0).toUpperCase() + position.slice(1), count]);
+const randomSelectPlayers = (count) => {
+    const shuffledPlayers = players.sort(() => 0.5 - Math.random());
+    return shuffledPlayers.slice(0, count);
+};
+
+const countPlayersByPosition = () => {
+    const counts = { Defender: 0, Midfielder: 0, Attacker: 0 };
+    players.forEach(player => {
+        counts[player.position]++;
+    });
+    return counts;
+};
+
+const sortByAPT = () => {
+    return players.sort((a, b) => b.APT - a.APT);
+};
+
+const findHighestAPT = () => {
+    return players.reduce((max, player) => (player.APT > max.APT ? player : max), players[0]);
+};
+
+const findLowestAVG = () => {
+    return players.reduce((min, player) => (player.AVG < min.AVG ? player : min), players[0]);
+};
+
+const printPlayerTable = (players, headers, title) => {
+    const table = new Table({
+        head: headers,
+        style: { head: ['green'], border: ['grey'] },
+        colWidths: [5, 15, 15, 5, 5, 20, 7, 10]
+    });
+
+    players.forEach(player => {
+        table.push([player.id, player.firstName, player.lastName, player.APT, player.SET, player.nationalAssociation, player.AVG.toFixed(1), player.position]);
+    });
+
+    console.log(title);
+    console.log(table.toString());
+    return table.toString();
+};
+
+const saveToExcel = async (sheetName, data, headers) => {
+    const workbook = new ExcelJS.Workbook();
+    const filePath = 'football_club_data.xlsx';
+
+    let worksheet;
+    try {
+        await workbook.xlsx.readFile(filePath);
+        worksheet = workbook.addWorksheet(sheetName);
+    } catch (error) {
+        worksheet = workbook.addWorksheet(sheetName);
     }
-    console.log(table(countData));
-};
 
-const findHighestAPT = (players) => {
-    let highestAPTPlayer = players[0];
-    players.forEach(player => {
-        if (player.APT > highestAPTPlayer.APT) {
-            highestAPTPlayer = player;
-        }
-    });
-    return highestAPTPlayer;
-};
+    worksheet.columns = headers.map(header => ({ header, key: header }));
 
-const findLowestAVG = (players) => {
-    let lowestAVGPlayer = players[0];
-    players.forEach(player => {
-        if (player.AVG < lowestAVGPlayer.AVG) {
-            lowestAVGPlayer = player;
-        }
+    data.forEach(player => {
+        worksheet.addRow(player);
     });
-    return lowestAVGPlayer;
+
+    await workbook.xlsx.writeFile(filePath);
 };
 
 const main = () => {
-    askPositionLimits(() => {
-        const askForPlayerDetails = () => {
-            askQuestion(0, [], (answers) => {
-                const APT = parseFloat(answers[2]);
-                const SET = parseFloat(answers[3]);
-                const avg = calculateAvg(APT, SET);
+    console.log('Task A.1: Input Player Details');
+    const inputPlayers = [];
+    const addPlayerCallback = async (player) => {
+        if (player) {
+            inputPlayers.push(player);
+            askContinueInput(addPlayerCallback);
+        } else {
+            players.push(...inputPlayers);
+            savePlayers();
+            const headers = ['ID', 'First Name', 'Last Name', 'APT', 'SET', 'National Association', 'AVG', 'Position'];
+            const playerData = players.map(player => ({
+                ID: player.id,
+                'First Name': player.firstName,
+                'Last Name': player.lastName,
+                APT: player.APT,
+                SET: player.SET,
+                'National Association': player.nationalAssociation,
+                AVG: player.AVG.toFixed(1),
+                Position: player.position
+            }));
 
-                const player = {
-                    firstName: answers[0],
-                    lastName: answers[1],
-                    APT: APT,
-                    SET: SET,
-                    position: answers[4].toLowerCase(),
-                    nationalAssociation: answers[5],
-                    AVG: avg
-                };
+            console.log('Task A.2: Player Data with AVG');
+            printPlayerTable(players, headers, 'All Players');
+            await saveToExcel('All Players', playerData, headers);
 
-                multiplePlayers.push(player);
+            readline.question('Enter the required number of defenders: ', async (defenders) => {
+                readline.question('Enter the required number of midfielders: ', async (midfielders) => {
+                    readline.question('Enter the required number of attackers: ', async (attackers) => {
+                        const team = selectTeam(parseInt(defenders, 10), parseInt(midfielders, 10), parseInt(attackers, 10));
+                        const teamData = team.map(player => ({
+                            ID: player.id,
+                            'First Name': player.firstName,
+                            'Last Name': player.lastName,
+                            APT: player.APT,
+                            SET: player.SET,
+                            'National Association': player.nationalAssociation,
+                            AVG: player.AVG.toFixed(1),
+                            Position: player.position
+                        }));
+                        printPlayerTable(team, headers, 'Task A.3: Selected Team of Ten Players');
+                        await saveToExcel('Selected Team', teamData, headers);
 
-                readline.question('Do you want to enter another set of answers? (yes/no) ', (response) => {
-                    if (response.toLowerCase() === 'yes') {
-                        askForPlayerDetails(); 
-                    } else {
-                        readline.close();
-                        console.log('All sets of Players:');
-                        console.log(table(multiplePlayers.map(player => [
-                            player.firstName,
-                            player.lastName,
-                            player.APT,
-                            player.SET,
-                            player.position,
-                            player.nationalAssociation,
-                            player.AVG
-                        ])));
-                        generateReport(multiplePlayers);  // Generate the report before selecting the team
-                        selectTeam(multiplePlayers);
+                        readline.question('Enter the number of players required: ', async (count) => {
+                            const randomPlayers = randomSelectPlayers(parseInt(count, 10));
+                            const randomPlayerData = randomPlayers.map(player => ({
+                                ID: player.id,
+                                'First Name': player.firstName,
+                                'Last Name': player.lastName,
+                                APT: player.APT,
+                                SET: player.SET,
+                                'National Association': player.nationalAssociation,
+                                AVG: player.AVG.toFixed(1),
+                                Position: player.position
+                            }));
+                            printPlayerTable(randomPlayers, headers, 'Task A.4: Randomly Selected Players');
+                            await saveToExcel('Randomly Selected Players', randomPlayerData, headers);
 
-                        // Find the player with the highest APT score
-                        const highestAPTPlayer = findHighestAPT(multiplePlayers);
-                        console.log('Player with the Highest APT Score:');
-                        console.log(table([[
-                            highestAPTPlayer.firstName,
-                            highestAPTPlayer.lastName,
-                            highestAPTPlayer.APT,
-                            highestAPTPlayer.SET,
-                            highestAPTPlayer.position,
-                            highestAPTPlayer.nationalAssociation,
-                            highestAPTPlayer.AVG
-                        ]]));
+                            const counts = countPlayersByPosition();
+                            const countTable = new Table({
+                                head: ['Position', 'Count'],
+                                style: { head: ['green'], border: ['grey'] },
+                                colWidths: [20, 10]
+                            });
 
-                        // Find the player with the lowest AVG score
-                        const lowestAVGPlayer = findLowestAVG(multiplePlayers);
-                        console.log('Player with the Lowest AVG Score:');
-                        console.log(table([[
-                            lowestAVGPlayer.firstName,
-                            lowestAVGPlayer.lastName,
-                            lowestAVGPlayer.APT,
-                            lowestAVGPlayer.SET,
-                            lowestAVGPlayer.position,
-                            lowestAVGPlayer.nationalAssociation,
-                            lowestAVGPlayer.AVG
-                        ]]));
-                    }
+                            Object.keys(counts).forEach(position => {
+                                countTable.push([position, counts[position]]);
+                            });
+
+                            const countTableString = countTable.toString();
+                            console.log('Task A.5: Count Players by Position');
+                            console.log(countTableString);
+
+                            const workbook = new ExcelJS.Workbook();
+                            const filePath = 'football_club_data.xlsx';
+                            let worksheet;
+                            try {
+                                await workbook.xlsx.readFile(filePath);
+                                worksheet = workbook.addWorksheet('Count Players by Position');
+                            } catch (error) {
+                                worksheet = workbook.addWorksheet('Count Players by Position');
+                            }
+
+                            worksheet.columns = [
+                                { header: 'Position', key: 'Position' },
+                                { header: 'Count', key: 'Count' }
+                            ];
+
+                            Object.keys(counts).forEach(position => {
+                                worksheet.addRow({ Position: position, Count: counts[position] });
+                            });
+
+                            await workbook.xlsx.writeFile(filePath);
+
+                            const sortedPlayers = sortByAPT();
+                            const sortedPlayerData = sortedPlayers.map(player => ({
+                                ID: player.id,
+                                'First Name': player.firstName,
+                                'Last Name': player.lastName,
+                                APT: player.APT,
+                                SET: player.SET,
+                                'National Association': player.nationalAssociation,
+                                AVG: player.AVG.toFixed(1),
+                                Position: player.position
+                            }));
+                            printPlayerTable(sortedPlayers, headers, 'Task A.6: Players Sorted by APT');
+                            await saveToExcel('Players Sorted by APT', sortedPlayerData, headers);
+
+                            const highestAPTPlayer = findHighestAPT();
+                            const highestAPTPlayerData = [{
+                                ID: highestAPTPlayer.id,
+                                'First Name': highestAPTPlayer.firstName,
+                                'Last Name': highestAPTPlayer.lastName,
+                                APT: highestAPTPlayer.APT,
+                                SET: highestAPTPlayer.SET,
+                                'National Association': highestAPTPlayer.nationalAssociation,
+                                AVG: highestAPTPlayer.AVG.toFixed(1),
+                                Position: highestAPTPlayer.position
+                            }];
+                            printPlayerTable([highestAPTPlayer], headers, 'Task A.7: Player with Highest APT');
+                            await saveToExcel('Player with Highest APT', highestAPTPlayerData, headers);
+
+                            const lowestAVGPlayer = findLowestAVG();
+                            const lowestAVGPlayerData = [{
+                                ID: lowestAVGPlayer.id,
+                                'First Name': lowestAVGPlayer.firstName,
+                                'Last Name': lowestAVGPlayer.lastName,
+                                APT: lowestAVGPlayer.APT,
+                                SET: lowestAVGPlayer.SET,
+                                'National Association': lowestAVGPlayer.nationalAssociation,
+                                AVG: lowestAVGPlayer.AVG.toFixed(1),
+                                Position: lowestAVGPlayer.position
+                            }];
+                            printPlayerTable([lowestAVGPlayer], headers, 'Task A.8: Player with Lowest AVG');
+                            await saveToExcel('Player with Lowest AVG', lowestAVGPlayerData, headers);
+
+                            readline.close();
+                        });
+                    });
                 });
             });
-        };
+        }
+    };
 
-        askForPlayerDetails();
-    });
+    getPlayerInput(addPlayerCallback);
 };
 
 main();

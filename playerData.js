@@ -1,0 +1,198 @@
+const players = [
+    {
+        "id": 1,
+        "firstName": "Daniel",
+        "lastName": "Scott",
+        "APT": 79,
+        "SET": 92,
+        "nationalAssociation": "Scotland",
+        "position": "Attacker",
+        "AVG": 85.5
+    },
+    {
+        "id": 2,
+        "firstName": "Ali",
+        "lastName": "Aslam",
+        "APT": 98,
+        "SET": 94,
+        "nationalAssociation": "Northern Ireland",
+        "position": "Midfielder",
+        "AVG": 96
+    },
+    {
+        "id": 3,
+        "firstName": "Oliver",
+        "lastName": "Barker",
+        "APT": 89,
+        "SET": 95,
+        "nationalAssociation": "England",
+        "position": "Defender",
+        "AVG": 92
+    },
+    {
+        "id": 4,
+        "firstName": "Jordan",
+        "lastName": "Robinson",
+        "APT": 45,
+        "SET": 89,
+        "nationalAssociation": "Wales",
+        "position": "Attacker",
+        "AVG": 67
+    },
+    {
+        "id": 5,
+        "firstName": "Steven",
+        "lastName": "Walker",
+        "APT": 88,
+        "SET": 87,
+        "nationalAssociation": "Wales",
+        "position": "Midfielder",
+        "AVG": 87.5
+    },
+    {
+        "id": 6,
+        "firstName": "Alfie",
+        "lastName": "Loy",
+        "APT": 85,
+        "SET": 79,
+        "nationalAssociation": "Wales",
+        "position": "Attacker",
+        "AVG": 82
+    },
+    {
+        "id": 7,
+        "firstName": "Rashid",
+        "lastName": "Bhatti",
+        "APT": 90,
+        "SET": 86,
+        "nationalAssociation": "England",
+        "position": "Midfielder",
+        "AVG": 88
+    },
+    {
+        "id": 8,
+        "firstName": "Thomas",
+        "lastName": "Taylor",
+        "APT": 97,
+        "SET": 85,
+        "nationalAssociation": "England",
+        "position": "Defender",
+        "AVG": 91
+    },
+    {
+        "id": 9,
+        "firstName": "Theo",
+        "lastName": "Dolan",
+        "APT": 87,
+        "SET": 82,
+        "nationalAssociation": "Scotland",
+        "position": "Attacker",
+        "AVG": 84.5
+    },
+    {
+        "id": 10,
+        "firstName": "Finley",
+        "lastName": "Cross",
+        "APT": 95,
+        "SET": 83,
+        "nationalAssociation": "Northern Ireland",
+        "position": "Midfielder",
+        "AVG": 89
+    },
+    {
+        "id": 11,
+        "firstName": "Joshua",
+        "lastName": "Mills",
+        "APT": 92,
+        "SET": 71,
+        "nationalAssociation": "Scotland",
+        "position": "Attacker",
+        "AVG": 81.5
+    },
+    {
+        "id": 12,
+        "firstName": "Leander",
+        "lastName": "Moore",
+        "APT": 91,
+        "SET": 72,
+        "nationalAssociation": "Northern Ireland",
+        "position": "Midfielder",
+        "AVG": 81.5
+    },
+    {
+        "id": 13,
+        "firstName": "Isaac",
+        "lastName": "Johnson",
+        "APT": 76,
+        "SET": 77,
+        "nationalAssociation": "England",
+        "position": "Defender",
+        "AVG": 76.5
+    },
+    {
+        "id": 14,
+        "firstName": "William",
+        "lastName": "Adams",
+        "APT": 78,
+        "SET": 78,
+        "nationalAssociation": "England",
+        "position": "Midfielder",
+        "AVG": 78
+    },
+    {
+        "id": 15,
+        "firstName": "Jacob",
+        "lastName": "Stone",
+        "APT": 77,
+        "SET": 79,
+        "nationalAssociation": "Wales",
+        "position": "Midfielder",
+        "AVG": 78
+    },
+    {
+        "id": 16,
+        "firstName": "James",
+        "lastName": "Chaffey",
+        "APT": 93,
+        "SET": 70,
+        "nationalAssociation": "Wales",
+        "position": "Attacker",
+        "AVG": 81.5
+    },
+    {
+        "id": 17,
+        "firstName": "Lucas",
+        "lastName": "Saunders",
+        "APT": 68,
+        "SET": 69,
+        "nationalAssociation": "Wales",
+        "position": "Attacker",
+        "AVG": 68.5
+    },
+    {
+        "id": 18,
+        "firstName": "Alexander",
+        "lastName": "Daly",
+        "APT": 43,
+        "SET": 67,
+        "nationalAssociation": "England",
+        "position": "Midfielder",
+        "AVG": 55
+    },
+    {
+        "id": 19,
+        "firstName": "Arlo",
+        "lastName": "Gilchrist",
+        "APT": 50,
+        "SET": 65,
+        "nationalAssociation": "England",
+        "position": "Attacker",
+        "AVG": 57.5
+    },
+];
+const savePlayers = () => {
+    const fs = require('fs');
+    fs.writeFileSync('./playerData.json', JSON.stringify(players, null, 2));
+};
+
+module.exports = { players, savePlayers };
