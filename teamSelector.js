@@ -1,9 +1,5 @@
 const { players, savePlayers } = require("./playerData");
-const {
-  getPlayerInput,
-  askContinueInput,
-  readline,
-} = require("./inputHandler");
+const {getPlayerInput,askContinueInput,readline,} = require("./inputHandler");
 const fs = require("fs");
 const Table = require("cli-table3");
 const ExcelJS = require("exceljs");
@@ -46,28 +42,20 @@ const sortByAPT = () => {
 };
 
 const findHighestAPT = () => {
-  return players.reduce(
-    (max, player) => (player.APT > max.APT ? player : max),
-    players[0]
-  );
+  return players.reduce((max, player) => (player.APT > max.APT ? player : max),players[0]);
 };
 
 const findLowestAVG = () => {
-  return players.reduce(
-    (min, player) => (player.AVG < min.AVG ? player : min),
-    players[0]
-  );
+  return players.reduce((min, player) => (player.AVG < min.AVG ? player : min),players[0]);
 };
 
 const searchPlayers = (query) => {
   const lowerCaseQuery = query.toLowerCase();
   return players.filter(player =>
     player.firstName.toLowerCase().includes(lowerCaseQuery) ||
-    player.lastName.toLowerCase().includes(lowerCaseQuery)
-  );
+    player.lastName.toLowerCase().includes(lowerCaseQuery) );
 };
 
-// Helper function to print player table
 const printPlayerTable = (players, headers, title) => {
   const table = new Table({
     head: headers,
@@ -87,17 +75,14 @@ const printPlayerTable = (players, headers, title) => {
       player.position,
     ]);
   });
-
   console.log(title);
   console.log(table.toString());
   return table.toString();
 };
 
-// Helper function to save player data to an Excel sheet
 const saveToExcel = async (sheetName, data, headers) => {
   const workbook = new ExcelJS.Workbook();
   const filePath = "football_club_data.xlsx";
-
   let worksheet;
   try {
     await workbook.xlsx.readFile(filePath);
@@ -109,17 +94,13 @@ const saveToExcel = async (sheetName, data, headers) => {
   } catch (error) {
     worksheet = workbook.addWorksheet(sheetName);
   }
-
   worksheet.columns = headers.map((header) => ({ header, key: header }));
-
   data.forEach((player) => {
     worksheet.addRow(player);
   });
-
   await workbook.xlsx.writeFile(filePath);
 };
 
-// Sample run for each task
 const main = () => {
   console.log("Task A.1: Input Player Details");
   const inputPlayers = [];
@@ -150,11 +131,9 @@ const main = () => {
         AVG: player.AVG.toFixed(1),
         Position: player.position,
       }));
-
       console.log("Task A.2: Player Data with AVG");
       printPlayerTable(players, headers, "All Players");
       await saveToExcel("All Players", playerData, headers);
-
       readline.question(
         "Enter the required number of defenders: ",
         async (defenders) => {
@@ -185,7 +164,6 @@ const main = () => {
                     "Task A.3: Selected Team :"
                   );
                   await saveToExcel("Selected Team", teamData, headers);
-
                   readline.question(
                     "Enter the number of players required: ",
                     async (count) => {
@@ -212,22 +190,18 @@ const main = () => {
                         randomPlayerData,
                         headers
                       );
-
                       const counts = countPlayersByPosition();
                       const countTable = new Table({
                         head: ["Position", "Count"],
                         style: { head: ["green"], border: ["grey"] },
                         colWidths: [20, 10],
                       });
-
                       Object.keys(counts).forEach((position) => {
                         countTable.push([position, counts[position]]);
                       });
-
                       const countTableString = countTable.toString();
                       console.log("Task A.5: Count Players by Position");
                       console.log(countTableString);
-
                       const workbook = new ExcelJS.Workbook();
                       const filePath = "football_club_data.xlsx";
                       let worksheet;
@@ -247,21 +221,17 @@ const main = () => {
                           "Count Players by Position"
                         );
                       }
-
                       worksheet.columns = [
                         { header: "Position", key: "Position" },
                         { header: "Count", key: "Count" },
                       ];
-
                       Object.keys(counts).forEach((position) => {
                         worksheet.addRow({
                           Position: position,
                           Count: counts[position],
                         });
                       });
-
                       await workbook.xlsx.writeFile(filePath);
-
                       const sortedPlayers = sortByAPT();
                       const sortedPlayerData = sortedPlayers.map((player) => ({
                         ID: player.id,
@@ -283,7 +253,6 @@ const main = () => {
                         sortedPlayerData,
                         headers
                       );
-
                       const highestAPTPlayer = findHighestAPT();
                       const highestAPTPlayerData = [
                         {
@@ -308,7 +277,6 @@ const main = () => {
                         highestAPTPlayerData,
                         headers
                       );
-
                       const lowestAVGPlayer = findLowestAVG();
                       const lowestAVGPlayerData = [
                         {
@@ -333,8 +301,6 @@ const main = () => {
                         lowestAVGPlayerData,
                         headers
                       );
-
-                      // Search Functionality
                       readline.question('Enter search query (first or last name): ', (query) => {
                           const searchResults = searchPlayers(query);
                           if (searchResults.length > 0) {
@@ -343,18 +309,8 @@ const main = () => {
                               console.log(`No players found matching the query '${query}'.`);
                           }
                           readline.close();
-                      });
-                    }
-                  );
-                }
-              );
-            }
-          );
-        }
-      );
-    }
+                      });} );} ); } ); }  ); }
   };
   getPlayerInput(addPlayerCallback);
 };
-
 main();
