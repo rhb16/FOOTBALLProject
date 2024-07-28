@@ -182,7 +182,7 @@ const main = () => {
                   printPlayerTable(
                     team,
                     headers,
-                    "Task A.3: Selected Team of Ten Players"
+                    "Task A.3: Selected Team :"
                   );
                   await saveToExcel("Selected Team", teamData, headers);
 
