@@ -45,7 +45,7 @@ const askQuestion = (index, answers, callback) => {
     }
 };
 
-const getPlayerInput = (callback) => {
+const getPlayerInput = (callback) => { 
     askQuestion(0, [], (answers) => {
         const player = {
             id: Date.now(),

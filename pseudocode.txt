@@ -1,0 +1,63 @@
+Task A1:The application takes input from the user and stores it in an array.
+Function getPlayerInput(callback):
+    Initialize empty list `answers`
+    For each question in questions:
+        Ask user for input
+        Validate input based on question type
+        Append valid input to `answers`
+    Calculate AVG as average of APT and SET
+    Create player object with input data and AVG
+    Invoke callback with player object
+
+Function askContinueInput(callback):
+    Ask user if they want to input more players
+    If yes, call getPlayerInput with callback
+    If no, call callback with null
+
+Task A2:Calculate and store the average score (AVG) based on APT and SET
+Function calculateAVG(APT, SET):
+    Return (APT + SET) / 2
+
+Task A3:Select players that have high SET score:
+Function selectTeam(defendersCount, midfieldersCount, attackersCount):
+    Sort players by SET score in descending order
+    Initialize empty list `selectedTeam`
+    Initialize position counters
+    For each player in sorted players:
+        If player’s position count is less than required count:
+            Add player to `selectedTeam`
+            Increment position counter
+    Return first 10 players from `selectedTeam`
+
+Task A4: Randomly select a number of players based on user input.
+Function randomSelectPlayers(count):
+    Shuffle players randomly
+    Return first `count` players
+
+Task A5:Generate a report counting players by their position.
+Function countPlayersByPosition():
+    Initialize position counts
+    For each player in players:
+        Increment count for player’s position
+    Return position counts
+
+Task A6:Sort all players’ data by their APT score in descending order
+Function sortByAPT():
+    Sort players by APT score in descending order
+    Return sorted players
+
+Task A7:Identify the player with the highest APT score.
+Function findHighestAPT():
+    Initialize max player as first player
+    For each player in players:
+        If player’s APT is greater than max player’s APT:
+            Update max player
+    Return max player
+
+Task A8:Identify the player with the lowest AVG score.
+Function findLowestAVG():
+    Initialize min player as first player
+    For each player in players:
+        If player’s AVG is less than min player’s AVG:
+            Update min player
+    Return min player
