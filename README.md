@@ -45,5 +45,5 @@ The Football Club Player Selection Application is designed to assist the club's 
 2. **Run the Application**
     - Execute the application with the following command:
       ```bash
-      node teamselector.js
+      node teamSelector.js
       ```
