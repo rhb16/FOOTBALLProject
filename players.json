@@ -248,5 +248,25 @@
         "position": "Defender",
         "nationalAssociation": "Northern Ireland",
         "AVG": 34
+    },
+    {
+        "id": 1722238592282,
+        "firstName": "Malak",
+        "lastName": "Baghdaddy",
+        "APT": 56,
+        "SET": 99,
+        "position": "Attacker",
+        "nationalAssociation": "Scotland",
+        "AVG": 77.5
+    },
+    {
+        "id": 1722240555970,
+        "firstName": "Zaynab",
+        "lastName": "Nazzal",
+        "APT": 67,
+        "SET": 88,
+        "position": "Midfielder",
+        "nationalAssociation": "Scotland",
+        "AVG": 77.5
     }
 ]

@@ -3,6 +3,7 @@ const {getPlayerInput,askContinueInput,readline,} = require("./inputHandler");
 const fs = require("fs");
 const Table = require("cli-table3");
 const ExcelJS = require("exceljs");
+const connection = require('./dbConnection');
 
 const selectTeam = (defendersCount, midfieldersCount, attackersCount) => {
   const selectedTeam = [];

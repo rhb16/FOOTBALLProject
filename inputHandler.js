@@ -1,5 +1,5 @@
 const players = require('./playerData');
-
+const connection = require('./dbConnection');
 const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
