@@ -1,6 +1,6 @@
 # Football Club Player Selection Application
 
-The Football Club Player Selection Application is designed to assist the club's administration in selecting a certain numbers of players based on their playing positions. The application also produces various reports. It collects player details such as their first and last names, agility and power test (APT) and strength and endurance test (SET) scores, position on the field (defender, midfielder, attacker), and the national association (England, Northern Ireland, Scotland, or Wales) to which they currently belong.
+The Football Club Player Selection Application is designed to assist the club's administration in selecting players based on their playing positions. The application also produces various reports. It collects player details such as their first and last names, agility and power test (APT) and strength and endurance test (SET) scores, position on the field (defender, midfielder, attacker), and the national association (England, Northern Ireland, Scotland, or Wales) to which they currently belong.
 
 ## Features and Functionalities
 
@@ -33,3 +33,17 @@ The Football Club Player Selection Application is designed to assist the club's 
 
 8. **Finding the Player with the Lowest AVG Score**
     - Identifies the player with the lowest AVG score.
+
+## How to Run
+
+1. **Install Node Modules**
+    - Run the following command to install the necessary node modules:
+      ```bash
+      npm install
+      ```
+
+2. **Run the Application**
+    - Execute the application with the following command:
+      ```bash
+      node teamselector.js
+      ```
