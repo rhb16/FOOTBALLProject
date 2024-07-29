@@ -238,5 +238,15 @@
         "position": "Defender",
         "nationalAssociation": "Northern Ireland",
         "AVG": 23
+    },
+    {
+        "id": 1722236335864,
+        "firstName": "Ali ",
+        "lastName": "Daher",
+        "APT": 23,
+        "SET": 45,
+        "position": "Defender",
+        "nationalAssociation": "Northern Ireland",
+        "AVG": 34
     }
 ]

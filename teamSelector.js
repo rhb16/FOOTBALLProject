@@ -165,7 +165,7 @@ const main = () => {
                   );
                   await saveToExcel("Selected Team", teamData, headers);
                   readline.question(
-                    "Enter the number of players required: ",
+                    "Enter the number of players required inorder to select randomly: ",
                     async (count) => {
                       const randomPlayers = randomSelectPlayers(
                         parseInt(count, 10)
