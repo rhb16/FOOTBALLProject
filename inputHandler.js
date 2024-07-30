@@ -52,7 +52,7 @@ const getPlayerInput = (callback) => {
             firstName: answers[0],
             lastName: answers[1],
             APT: answers[2],
-            SET: answers[3],
+            set_score: answers[3],
             position: answers[4],
             nationalAssociation: answers[5],
             AVG: (answers[2] + answers[3]) / 2
@@ -71,4 +71,4 @@ const askContinueInput = (callback) => {
     });
 };
 
-module.exports = { getPlayerInput, askContinueInput, readline , players};
+module.exports = { getPlayerInput, askContinueInput, readline };

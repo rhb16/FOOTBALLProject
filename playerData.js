@@ -1,16 +1,50 @@
-const fs = require('fs');
-const path = require('path');
+const connection = require('./dbConnection'); // Import the connection object
 
-const filePath = path.join(__dirname, 'players.json');
-
-let players = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-players.forEach(player => {
-    player.AVG = (player.APT + player.SET) / 2;
-});
-
-const savePlayers = () => {
-    fs.writeFileSync(filePath, JSON.stringify(players, null, 4));
+const updatePlayer = async (id, updates) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      UPDATE players
+      SET firstName = ?, lastName = ?, APT = ?, set_score = ?, nationalAssociation = ?, position = ?, AVG = ?
+      WHERE id = ?
+    `;
+    const values = [
+      updates.firstName,
+      updates.lastName,
+      updates.APT,
+      updates.set_score,
+      updates.nationalAssociation,
+      updates.position,
+      updates.AVG,
+      id
+    ];
+    connection.query(query, values, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
 };
 
-module.exports = { players, savePlayers };
+const addPlayer = async (player) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      INSERT INTO players (id, firstName, lastName, APT, set_score, nationalAssociation, position, AVG)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+      player.id,
+      player.firstName,
+      player.lastName,
+      player.APT,
+      player.set_score,
+      player.nationalAssociation,
+      player.position,
+      player.AVG
+    ];
+    connection.query(query, values, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
+module.exports = { addPlayer, updatePlayer }; // Export both functions

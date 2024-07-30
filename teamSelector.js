@@ -1,23 +1,32 @@
-const { players, savePlayers } = require("./playerData");
-const {getPlayerInput,askContinueInput,readline,} = require("./inputHandler");
-const fs = require("fs");
-const Table = require("cli-table3");
-const ExcelJS = require("exceljs");
+const mysql = require('mysql2');
 const connection = require('./dbConnection');
+const Table = require('cli-table3');
+const ExcelJS = require('exceljs');
+const { getPlayerInput } = require('./inputHandler'); // Removed redundant import
+const { addPlayer } = require('./playerData'); // Import addPlayer
 
-const selectTeam = (defendersCount, midfieldersCount, attackersCount) => {
+// Fetch players from the database
+const getPlayersFromDB = async () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM players', (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
+// Select team based on counts of each position
+const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
+  const players = await getPlayersFromDB();
   const selectedTeam = [];
-  const sortedPlayers = players.sort((a, b) => b.SET - a.SET);
+  const sortedPlayers = players.sort((a, b) => b.set_score - a.set_score);
   const positions = { Defender: 0, Midfielder: 0, Attacker: 0 };
   sortedPlayers.forEach((player) => {
-    if (
-      positions[player.position] <
-      {
-        Defender: defendersCount,
-        Midfielder: midfieldersCount,
-        Attacker: attackersCount,
-      }[player.position]
-    ) {
+    if (positions[player.position] < {
+      Defender: defendersCount,
+      Midfielder: midfieldersCount,
+      Attacker: attackersCount,
+    }[player.position]) {
       selectedTeam.push(player);
       positions[player.position]++;
     }
@@ -25,12 +34,16 @@ const selectTeam = (defendersCount, midfieldersCount, attackersCount) => {
   return selectedTeam.slice(0, 10);
 };
 
-const randomSelectPlayers = (count) => {
+// Randomly select players
+const randomSelectPlayers = async (count) => {
+  const players = await getPlayersFromDB();
   const shuffledPlayers = players.sort(() => 0.5 - Math.random());
   return shuffledPlayers.slice(0, count);
 };
 
-const countPlayersByPosition = () => {
+// Count players by position
+const countPlayersByPosition = async () => {
+  const players = await getPlayersFromDB();
   const counts = { Defender: 0, Midfielder: 0, Attacker: 0 };
   players.forEach((player) => {
     counts[player.position]++;
@@ -38,29 +51,38 @@ const countPlayersByPosition = () => {
   return counts;
 };
 
-const sortByAPT = () => {
+// Sort players by APT
+const sortByAPT = async () => {
+  const players = await getPlayersFromDB();
   return players.sort((a, b) => b.APT - a.APT);
 };
 
-const findHighestAPT = () => {
-  return players.reduce((max, player) => (player.APT > max.APT ? player : max),players[0]);
+// Find player with highest APT
+const findHighestAPT = async () => {
+  const players = await getPlayersFromDB();
+  return players.reduce((max, player) => (player.APT > max.APT ? player : max), players[0]);
 };
 
-const findLowestAVG = () => {
-  return players.reduce((min, player) => (player.AVG < min.AVG ? player : min),players[0]);
+// Find player with lowest AVG
+const findLowestAVG = async () => {
+  const players = await getPlayersFromDB();
+  return players.reduce((min, player) => (player.AVG < min.AVG ? player : min), players[0]);
 };
 
-const searchPlayers = (query) => {
+// Search players by query
+const searchPlayers = async (query) => {
+  const players = await getPlayersFromDB();
   const lowerCaseQuery = query.toLowerCase();
   return players.filter(player =>
     player.firstName.toLowerCase().includes(lowerCaseQuery) ||
-    player.lastName.toLowerCase().includes(lowerCaseQuery) );
+    player.lastName.toLowerCase().includes(lowerCaseQuery));
 };
 
+// Print table with player data
 const printPlayerTable = (players, headers, title) => {
   const table = new Table({
     head: headers,
-    style: { head: ["green"], border: ["grey"] },
+    style: { head: ['green'], border: ['grey'] },
     colWidths: [5, 15, 15, 5, 5, 20, 7, 10],
   });
 
@@ -70,7 +92,7 @@ const printPlayerTable = (players, headers, title) => {
       player.firstName,
       player.lastName,
       player.APT,
-      player.SET,
+      player.set_score,
       player.nationalAssociation,
       player.AVG.toFixed(1),
       player.position,
@@ -81,9 +103,10 @@ const printPlayerTable = (players, headers, title) => {
   return table.toString();
 };
 
+// Save data to Excel
 const saveToExcel = async (sheetName, data, headers) => {
   const workbook = new ExcelJS.Workbook();
-  const filePath = "football_club_data.xlsx";
+  const filePath = 'football_club_data.xlsx';
   let worksheet;
   try {
     await workbook.xlsx.readFile(filePath);
@@ -102,216 +125,183 @@ const saveToExcel = async (sheetName, data, headers) => {
   await workbook.xlsx.writeFile(filePath);
 };
 
-const main = () => {
-  console.log("Task A.1: Input Player Details");
-  const inputPlayers = [];
+// Main function
+const main = async () => {
+  const headers = [
+    'ID',
+    'First Name',
+    'Last Name',
+    'APT',
+    'SET',
+    'National Association',
+    'AVG',
+    'Position',
+  ];
+
+  const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  console.log('Connected to the database.\nTask A.1: Input Player Details');
+
   const addPlayerCallback = async (player) => {
     if (player) {
-      inputPlayers.push(player);
-      askContinueInput(addPlayerCallback);
-    } else {
-      players.push(...inputPlayers);
-      savePlayers();
-      const headers = [
-        "ID",
-        "First Name",
-        "Last Name",
-        "APT",
-        "SET",
-        "National Association",
-        "AVG",
-        "Position",
-      ];
-      const playerData = players.map((player) => ({
-        ID: player.id,
-        "First Name": player.firstName,
-        "Last Name": player.lastName,
-        APT: player.APT,
-        SET: player.SET,
-        "National Association": player.nationalAssociation,
-        AVG: player.AVG.toFixed(1),
-        Position: player.position,
-      }));
-      console.log("Task A.2: Player Data with AVG");
-      printPlayerTable(players, headers, "All Players");
-      await saveToExcel("All Players", playerData, headers);
-      readline.question(
-        "Enter the required number of defenders: ",
-        async (defenders) => {
-          readline.question(
-            "Enter the required number of midfielders: ",
-            async (midfielders) => {
-              readline.question(
-                "Enter the required number of attackers: ",
-                async (attackers) => {
-                  const team = selectTeam(
-                    parseInt(defenders, 10),
-                    parseInt(midfielders, 10),
-                    parseInt(attackers, 10)
-                  );
-                  const teamData = team.map((player) => ({
+      await addPlayer(player); // Ensure addPlayer function is updated to use database
+      readline.question('Enter more player details? (yes/no): ', async (answer) => {
+        if (answer.toLowerCase() === 'yes') {
+          await getPlayerInput(addPlayerCallback); 
+        } else {
+          const players = await getPlayersFromDB();
+          console.log('Task A.2: Player Data with AVG');
+          printPlayerTable(players, headers, 'All Players');
+          await saveToExcel('All Players', players, headers);
+
+          readline.question('Enter the required number of defenders: ', async (defenders) => {
+            readline.question('Enter the required number of midfielders: ', async (midfielders) => {
+              readline.question('Enter the required number of attackers: ', async (attackers) => {
+                const team = await selectTeam(
+                  parseInt(defenders, 10),
+                  parseInt(midfielders, 10),
+                  parseInt(attackers, 10)
+                );
+                const teamData = team.map((player) => ({
+                  ID: player.id,
+                  'First Name': player.firstName,
+                  'Last Name': player.lastName,
+                  APT: player.APT,
+                  SET: player.set_score,
+                  'National Association': player.nationalAssociation,
+                  AVG: player.AVG.toFixed(1),
+                  Position: player.position,
+                }));
+                printPlayerTable(team, headers, 'Task A.3: Selected Team');
+                await saveToExcel('Selected Team', teamData, headers);
+
+                readline.question('Enter the number of players required to select randomly: ', async (count) => {
+                  const randomPlayers = await randomSelectPlayers(parseInt(count, 10));
+                  const randomPlayerData = randomPlayers.map((player) => ({
                     ID: player.id,
-                    "First Name": player.firstName,
-                    "Last Name": player.lastName,
+                    'First Name': player.firstName,
+                    'Last Name': player.lastName,
                     APT: player.APT,
-                    SET: player.SET,
-                    "National Association": player.nationalAssociation,
+                    SET: player.set_score,
+                    'National Association': player.nationalAssociation,
                     AVG: player.AVG.toFixed(1),
                     Position: player.position,
                   }));
-                  printPlayerTable(
-                    team,
-                    headers,
-                    "Task A.3: Selected Team :"
-                  );
-                  await saveToExcel("Selected Team", teamData, headers);
-                  readline.question(
-                    "Enter the number of players required inorder to select randomly: ",
-                    async (count) => {
-                      const randomPlayers = randomSelectPlayers(
-                        parseInt(count, 10)
-                      );
-                      const randomPlayerData = randomPlayers.map((player) => ({
-                        ID: player.id,
-                        "First Name": player.firstName,
-                        "Last Name": player.lastName,
-                        APT: player.APT,
-                        SET: player.SET,
-                        "National Association": player.nationalAssociation,
-                        AVG: player.AVG.toFixed(1),
-                        Position: player.position,
-                      }));
-                      printPlayerTable(
-                        randomPlayers,
-                        headers,
-                        "Task A.4: Randomly Selected Players"
-                      );
-                      await saveToExcel(
-                        "Randomly Selected Players",
-                        randomPlayerData,
-                        headers
-                      );
-                      const counts = countPlayersByPosition();
-                      const countTable = new Table({
-                        head: ["Position", "Count"],
-                        style: { head: ["green"], border: ["grey"] },
-                        colWidths: [20, 10],
-                      });
-                      Object.keys(counts).forEach((position) => {
-                        countTable.push([position, counts[position]]);
-                      });
-                      const countTableString = countTable.toString();
-                      console.log("Task A.5: Count Players by Position");
-                      console.log(countTableString);
-                      const workbook = new ExcelJS.Workbook();
-                      const filePath = "football_club_data.xlsx";
-                      let worksheet;
-                      try {
-                        await workbook.xlsx.readFile(filePath);
-                        worksheet = workbook.getWorksheet(
-                          "Count Players by Position"
-                        );
-                        if (worksheet) {
-                          workbook.removeWorksheet("Count Players by Position");
-                        }
-                        worksheet = workbook.addWorksheet(
-                          "Count Players by Position"
-                        );
-                      } catch (error) {
-                        worksheet = workbook.addWorksheet(
-                          "Count Players by Position"
-                        );
-                      }
-                      worksheet.columns = [
-                        { header: "Position", key: "Position" },
-                        { header: "Count", key: "Count" },
-                      ];
-                      Object.keys(counts).forEach((position) => {
-                        worksheet.addRow({
-                          Position: position,
-                          Count: counts[position],
-                        });
-                      });
-                      await workbook.xlsx.writeFile(filePath);
-                      const sortedPlayers = sortByAPT();
-                      const sortedPlayerData = sortedPlayers.map((player) => ({
-                        ID: player.id,
-                        "First Name": player.firstName,
-                        "Last Name": player.lastName,
-                        APT: player.APT,
-                        SET: player.SET,
-                        "National Association": player.nationalAssociation,
-                        AVG: player.AVG.toFixed(1),
-                        Position: player.position,
-                      }));
-                      printPlayerTable(
-                        sortedPlayers,
-                        headers,
-                        "Task A.6: Players Sorted by APT"
-                      );
-                      await saveToExcel(
-                        "Players Sorted by APT",
-                        sortedPlayerData,
-                        headers
-                      );
-                      const highestAPTPlayer = findHighestAPT();
-                      const highestAPTPlayerData = [
-                        {
-                          ID: highestAPTPlayer.id,
-                          "First Name": highestAPTPlayer.firstName,
-                          "Last Name": highestAPTPlayer.lastName,
-                          APT: highestAPTPlayer.APT,
-                          SET: highestAPTPlayer.SET,
-                          "National Association":
-                            highestAPTPlayer.nationalAssociation,
-                          AVG: highestAPTPlayer.AVG.toFixed(1),
-                          Position: highestAPTPlayer.position,
-                        },
-                      ];
-                      printPlayerTable(
-                        [highestAPTPlayer],
-                        headers,
-                        "Task A.7: Player with Highest APT"
-                      );
-                      await saveToExcel(
-                        "Player with Highest APT",
-                        highestAPTPlayerData,
-                        headers
-                      );
-                      const lowestAVGPlayer = findLowestAVG();
-                      const lowestAVGPlayerData = [
-                        {
-                          ID: lowestAVGPlayer.id,
-                          "First Name": lowestAVGPlayer.firstName,
-                          "Last Name": lowestAVGPlayer.lastName,
-                          APT: lowestAVGPlayer.APT,
-                          SET: lowestAVGPlayer.SET,
-                          "National Association":
-                            lowestAVGPlayer.nationalAssociation,
-                          AVG: lowestAVGPlayer.AVG.toFixed(1),
-                          Position: lowestAVGPlayer.position,
-                        },
-                      ];
-                      printPlayerTable(
-                        [lowestAVGPlayer],
-                        headers,
-                        "Task A.8: Player with Lowest AVG"
-                      );
-                      await saveToExcel(
-                        "Player with Lowest AVG",
-                        lowestAVGPlayerData,
-                        headers
-                      );
-                      readline.question('Enter search query (first or last name): ', (query) => {
-                          const searchResults = searchPlayers(query);
-                          if (searchResults.length > 0) {
-                              printPlayerTable(searchResults, headers, `Search Results for '${query}'`);
-                          } else {
-                              console.log(`No players found matching the query '${query}'.`);
-                          }
-                          readline.close();
-                      });} );} ); } ); }  ); }
+                  printPlayerTable(randomPlayers, headers, 'Task A.4: Randomly Selected Players');
+                  await saveToExcel('Randomly Selected Players', randomPlayerData, headers);
+
+                  const counts = await countPlayersByPosition();
+                  const countTable = new Table({
+                    head: ['Position', 'Count'],
+                    style: { head: ['green'], border: ['grey'] },
+                    colWidths: [20, 10],
+                  });
+                  Object.keys(counts).forEach((position) => {
+                    countTable.push([position, counts[position]]);
+                  });
+                  console.log('Task A.5: Count Players by Position');
+                  console.log(countTable.toString());
+                  const workbook = new ExcelJS.Workbook();
+                  const filePath = 'football_club_data.xlsx';
+                  let worksheet;
+                  try {
+                    await workbook.xlsx.readFile(filePath);
+                    worksheet = workbook.getWorksheet('Count Players by Position');
+                    if (worksheet) {
+                      workbook.removeWorksheet('Count Players by Position');
+                    }
+                    worksheet = workbook.addWorksheet('Count Players by Position');
+                  } catch (error) {
+                    worksheet = workbook.addWorksheet('Count Players by Position');
+                  }
+                  worksheet.columns = [
+                    { header: 'Position', key: 'Position' },
+                    { header: 'Count', key: 'Count' },
+                  ];
+                  Object.keys(counts).forEach((position) => {
+                    worksheet.addRow({
+                      Position: position,
+                      Count: counts[position],
+                    });
+                  });
+                  await workbook.xlsx.writeFile(filePath);
+
+                  const sortedPlayers = await sortByAPT();
+                  const sortedPlayerData = sortedPlayers.map((player) => ({
+                    ID: player.id,
+                    'First Name': player.firstName,
+                    'Last Name': player.lastName,
+                    APT: player.APT,
+                    SET: player.set_score,
+                    'National Association': player.nationalAssociation,
+                    AVG: player.AVG.toFixed(1),
+                    Position: player.position,
+                  }));
+                  printPlayerTable(sortedPlayers, headers, 'Task A.6: Players Sorted by APT');
+                  await saveToExcel('Players Sorted by APT', sortedPlayerData, headers);
+
+                  const highestAPTPlayer = await findHighestAPT();
+                  const highestAPTPlayerData = [
+                    {
+                      ID: highestAPTPlayer.id,
+                      'First Name': highestAPTPlayer.firstName,
+                      'Last Name': highestAPTPlayer.lastName,
+                      APT: highestAPTPlayer.APT,
+                      SET: highestAPTPlayer.set_score,
+                      'National Association': highestAPTPlayer.nationalAssociation,
+                      AVG: highestAPTPlayer.AVG.toFixed(1),
+                      Position: highestAPTPlayer.position,
+                    },
+                  ];
+                  printPlayerTable([highestAPTPlayer], headers, 'Task A.7: Player with Highest APT');
+                  await saveToExcel('Player with Highest APT', highestAPTPlayerData, headers);
+
+                  const lowestAVGPlayer = await findLowestAVG();
+                  const lowestAVGPlayerData = [
+                    {
+                      ID: lowestAVGPlayer.id,
+                      'First Name': lowestAVGPlayer.firstName,
+                      'Last Name': lowestAVGPlayer.lastName,
+                      APT: lowestAVGPlayer.APT,
+                      SET: lowestAVGPlayer.set_score,
+                      'National Association': lowestAVGPlayer.nationalAssociation,
+                      AVG: lowestAVGPlayer.AVG.toFixed(1),
+                      Position: lowestAVGPlayer.position,
+                    },
+                  ];
+                  printPlayerTable([lowestAVGPlayer], headers, 'Task A.8: Player with Lowest AVG');
+                  await saveToExcel('Player with Lowest AVG', lowestAVGPlayerData, headers);
+
+                  readline.question('Enter player name to search: ', async (query) => {
+                    const searchResults = await searchPlayers(query);
+                    const searchResultsData = searchResults.map((player) => ({
+                      ID: player.id,
+                      'First Name': player.firstName,
+                      'Last Name': player.lastName,
+                      APT: player.APT,
+                      SET: player.set_score,
+                      'National Association': player.nationalAssociation,
+                      AVG: player.AVG.toFixed(1),
+                      Position: player.position,
+                    }));
+                    printPlayerTable(searchResults, headers, 'Task A.9: Search Results');
+                    await saveToExcel('Search Results', searchResultsData, headers);
+
+                    readline.close();
+                  });
+                });
+              });
+            });
+          });
+        }
+      });
+    }
   };
-  getPlayerInput(addPlayerCallback);
+
+  await getPlayerInput(addPlayerCallback); 
 };
-main();
+
+main().catch(console.error);
