@@ -4,15 +4,31 @@ const Table = require('cli-table3');
 const ExcelJS = require('exceljs');
 const { getPlayerInput, askForMorePlayerDetails,readline} = require('./inputHandler');
 const { addPlayer } = require('./playerData');
-
+const express = require('express');
+const app = express(); 
+const port = 3000; 
+app.use(express.json());
+//FIRST API CALL
 const getPlayersFromDB = async () => {
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM players', (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
-    });
+  return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM players', (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+      });
+  });
 };
+
+app.get('/api/players', async (req, res) => {
+  try {
+      const players = await getPlayersFromDB();
+      res.json(players);
+  } catch (error) {
+      console.error('Error fetching players:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
     const players = await getPlayersFromDB();
@@ -284,3 +300,6 @@ const main = async () => {
 };
 
 main().catch(console.error);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
