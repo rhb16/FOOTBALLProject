@@ -61,9 +61,9 @@ const getPlayerInput = (callback) => {
     });
 };
 
-const askContinueInput = (callback) => {
-    readline.question('Do you want to input more players? (y/n): ', (answer) => {
-        if (answer.toLowerCase() === 'y') {
+const askForMorePlayerDetails = (callback) => {
+    readline.question('Enter more player details? (yes/no): ', (answer) => {
+        if (answer.toLowerCase() === 'yes') {
             getPlayerInput(callback);
         } else {
             callback(null);
@@ -71,4 +71,4 @@ const askContinueInput = (callback) => {
     });
 };
 
-module.exports = { getPlayerInput, askContinueInput, readline };
+module.exports = { getPlayerInput, askForMorePlayerDetails, readline };
