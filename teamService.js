@@ -3,6 +3,16 @@ const connection = require('./dbConnection');
 const { getPlayerInput, askForMorePlayerDetails } = require('./inputHandler');
 const { addPlayer } = require('./playerData');
 
+const addPlayerService = async (player) => {
+  try {
+    const result = await addPlayer(player);
+    return { success: true, message: 'Player added successfully!' };
+  } catch (error) {
+    console.error('Error adding player:', error);
+    throw new Error('Internal Server Error');
+  }
+};
+
 const getPlayersFromDB = async () => {
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM players', (err, results) => {
@@ -93,6 +103,7 @@ const main = async (app) => {
   await getPlayerInput(addPlayerCallback);
 };
 module.exports = {
+  addPlayerService,
   getPlayersFromDB,
   selectTeam,
   randomSelectPlayers,

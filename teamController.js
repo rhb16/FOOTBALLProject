@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+  addPlayerService,
   getPlayersFromDB,
   selectTeam,
   randomSelectPlayers,
@@ -10,6 +11,37 @@ const {
   findLowestAVG,
   searchPlayers
 } = require('./teamService');
+
+router.post('/addPlayer', async (req, res) => {
+  try {
+    const validPositions = ['defender', 'midfielder', 'attacker'];
+    const validNationalAssociations = ['england', 'northern ireland', 'scotland', 'wales'];
+    const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
+    if (!firstName || !lastName || isNaN(APT) || isNaN(setScore) || !position || !nationalAssociation) {
+      return res.status(400).json({ message: 'All fields are required and APT/SET must be numbers.' });
+    }
+    if (!validPositions.includes(position.toLowerCase())) {
+      return res.status(400).json({ message: 'Position must be one of the following: defender, midfielder, attacker.' });
+    }
+    const normalizedNationalAssociation = nationalAssociation.trim().toLowerCase();
+    if (!validNationalAssociations.includes(normalizedNationalAssociation)) {
+      return res.status(400).json({ message: 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales.' });
+    }
+    const player = {
+      firstName,
+      lastName,
+      APT: parseFloat(APT),
+      setScore: parseFloat(setScore), 
+      position,
+      nationalAssociation
+    };
+    const result = await addPlayerService(player);
+    res.status(200).json({ message: result.message });
+  } catch (error) {
+    console.error('Error handling request:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 // FIRST API CALL
 router.get('/api/players', async (req, res) => {
