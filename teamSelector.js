@@ -118,7 +118,6 @@ const findHighestAPT = async () => {
   const players = await getPlayersFromDB();
   return players.reduce((max, player) => (player.APT > max.APT ? player : max), players[0]);
 };
-
 app.get('/api/find-highest-apt', async (req, res) => {
   try {
     const player = await findHighestAPT();
@@ -165,25 +164,35 @@ app.get('/api/search-players', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
+const startServer = () => {
+    return new Promise((resolve) => {
+      app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+        resolve();
+      });
+    });
+  };
 const main = async () => {
+    console.log('Starting application...'); // Optional startup message
+  
+    // Wait for the server to start
+    await startServer();
+    
+    // Log database connection status
+    console.log('Connected to the database.');
+  
     const addPlayerCallback = async (player) => {
       if (player) {
         await addPlayer(player);
-        askForMorePlayerDetails(addPlayerCallback); // Ask for more player details
+        askForMorePlayerDetails(addPlayerCallback);
       } else {
-        // User has decided not to add more players
         console.log('Player data entry complete.');
-        process.exit(0); // Exit the program
+        process.exit(0); 
       }
     };
   
     await getPlayerInput(addPlayerCallback);
   };
   
+  // Initialize the application
   main().catch(console.error);
-  
-  app.listen(port, () => {
-    // Server log omitted
-  });
-  
