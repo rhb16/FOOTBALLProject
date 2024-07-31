@@ -1,4 +1,4 @@
-const connection = require('./dbConnection'); // Import the connection object
+const connection = require('./dbConnection'); 
 
 const updatePlayer = async (id, updates) => {
   return new Promise((resolve, reject) => {
@@ -47,4 +47,4 @@ const addPlayer = async (player) => {
   });
 };
 
-module.exports = { addPlayer, updatePlayer }; // Export both functions
+module.exports = { addPlayer, updatePlayer }; 
