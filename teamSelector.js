@@ -8,6 +8,7 @@ const express = require('express');
 const app = express(); 
 const port = 3000; 
 app.use(express.json());
+
 //FIRST API CALL
 const getPlayersFromDB = async () => {
   return new Promise((resolve, reject) => {
@@ -17,7 +18,6 @@ const getPlayersFromDB = async () => {
       });
   });
 };
-
 app.get('/api/players', async (req, res) => {
   try {
       const players = await getPlayersFromDB();
@@ -29,7 +29,7 @@ app.get('/api/players', async (req, res) => {
 });
 
 
-
+//Second API Call
 const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
     const players = await getPlayersFromDB();
     const selectedTeam = [];
@@ -47,13 +47,40 @@ const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
     });
     return selectedTeam.slice(0, 10);
 };
+app.get('/api/selectplayers', async (req, res) => {
+  const { defendersCount, midfieldersCount, attackersCount } = req.query;
+  if (!defendersCount || !midfieldersCount || !attackersCount) {
+    return res.status(400).json({ error: 'Missing required query parameters' });
+  }
+  try {
+    const players = await selectTeam(
+      parseInt(defendersCount, 10),
+      parseInt(midfieldersCount, 10),
+      parseInt(attackersCount, 10)
+    );
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching players:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
+//third api call:
 const randomSelectPlayers = async (count) => {
     const players = await getPlayersFromDB();
     const shuffledPlayers = players.sort(() => 0.5 - Math.random());
     return shuffledPlayers.slice(0, count);
 };
-
+app.get('/api/random-players', async (req, res) => {
+    const count = parseInt(req.query.count, 10) || 5; // Default to 5 players if count is not provided
+    try {
+        const selectedPlayers = await randomSelectPlayers(count);
+        res.status(200).json(selectedPlayers);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching players.' });
+    }
+});
+//forth api call 
 const countPlayersByPosition = async () => {
     const players = await getPlayersFromDB();
     const counts = { Defender: 0, Midfielder: 0, Attacker: 0 };
@@ -62,22 +89,56 @@ const countPlayersByPosition = async () => {
     });
     return counts;
 };
-
+app.get('/api/count-players-by-position', async (req, res) => {
+    try {
+        const counts = await countPlayersByPosition();
+        res.status(200).json(counts);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while counting players by position.' });
+    }
+});
+//fifth call 
 const sortByAPT = async () => {
     const players = await getPlayersFromDB();
     return players.sort((a, b) => b.APT - a.APT);
 };
-
+app.get('/api/sort-by-apt', async (req, res) => {
+    try {
+        const sortedPlayers = await sortByAPT();
+        res.status(200).json(sortedPlayers);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while sorting players by APT.' });
+    }
+});
+//sixth call
 const findHighestAPT = async () => {
     const players = await getPlayersFromDB();
     return players.reduce((max, player) => (player.APT > max.APT ? player : max), players[0]);
 };
+app.get('/api/find-highest-apt', async (req, res) => {
+    try {
+        const player = await findHighestAPT();
+        res.status(200).json(player);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while finding the player with the highest APT.' });
+    }
+});
 
+//seventh api
 const findLowestAVG = async () => {
     const players = await getPlayersFromDB();
     return players.reduce((min, player) => (player.AVG < min.AVG ? player : min), players[0]);
 };
+app.get('/api/find-lowest-avg', async (req, res) => {
+    try {
+        const player = await findLowestAVG();
+        res.status(200).json(player);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while finding the player with the lowest AVG.' });
+    }
+});
 
+//8th api
 const searchPlayers = async (query) => {
     const players = await getPlayersFromDB();
     const lowerCaseQuery = query.toLowerCase();
@@ -85,6 +146,18 @@ const searchPlayers = async (query) => {
         player.firstName.toLowerCase().includes(lowerCaseQuery) ||
         player.lastName.toLowerCase().includes(lowerCaseQuery));
 };
+app.get('/api/search-players', async (req, res) => {
+    const query = req.query.q;
+    if (!query) {
+        return res.status(400).json({ error: 'Query parameter "q" is required.' });
+    }
+    try {
+        const players = await searchPlayers(query);
+        res.status(200).json(players);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while searching for players.' });
+    }
+});
 
 const printPlayerTable = (players, headers, title) => {
     const table = new Table({

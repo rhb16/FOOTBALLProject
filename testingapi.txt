@@ -1,0 +1,26 @@
+Get all players
+Route: GET http://localhost:3000/api/players
+
+Select team with specified counts of defenders, midfielders, and attackers
+Route: GET http://localhost:3000/api/selectplayers
+Sample request: http://localhost:3000/api/selectplayers?defendersCount=2&midfieldersCount=3&attackersCount=3
+
+Get random players
+Route: GET http://localhost:3000/api/random-players
+Sample request: http://localhost:3000/api/random-players?count=6
+
+Count players by position
+Route: GET http://localhost:3000/api/count-players-by-position
+
+Sort players by APT
+Route: GET http://localhost:3000/api/sort-by-apt
+
+Find the player with the highest APT
+Route: GET http://localhost:3000/api/find-highest-apt
+
+Find the player with the lowest AVG
+Route: GET http://localhost:3000/api/find-lowest-avg
+
+Search players by name
+Route: GET http://localhost:3000/api/search-players
+Sample request : http://localhost:3000/api/search-players?q=John
