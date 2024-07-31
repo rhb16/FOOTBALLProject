@@ -41,7 +41,7 @@ router.get('/api/selectplayers', async (req, res) => {
 
 // THIRD API CALL
 router.get('/api/random-players', async (req, res) => {
-  const count = parseInt(req.query.count, 10) || 5; // Default to 5 players if count is not provided
+  const count = parseInt(req.query.count, 10) || 5; 
   try {
     const selectedPlayers = await randomSelectPlayers(count);
     res.json(selectedPlayers);
