@@ -23,15 +23,14 @@ const validateselectplayers = (req, res, next) => {
     }
     next(); 
   };
-  const validateSearchPlayers = (req, res, next) => {
+
+const validateSearchPlayers = (req, res, next) => {
     const query = req.query.q;
     if (!query) {
       return res.status(400).json({ error: 'Query parameter "q" is required.' });
     }
-    next(); // Proceed to the next middleware or route handler
+    next(); 
   };
-  
-
 module.exports = {
     validatePlayer,
     validateselectplayers,
