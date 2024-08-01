@@ -10,10 +10,10 @@ const addPlayer = async (player) => {
       player.firstName,
       player.lastName,
       player.APT,
-      player.setScore, 
+      player.set_score, 
       player.nationalAssociation.toLowerCase(),
       player.position.toLowerCase(),
-      (player.APT + player.setScore) / 2  
+      (player.APT + player.set_score) / 2  
     ];
     connection.query(query, values, (err, results) => {
       if (err) return reject(err);

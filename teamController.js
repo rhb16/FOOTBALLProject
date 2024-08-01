@@ -17,13 +17,13 @@ const {
   searchPlayers } = require('./teamService');
 
 router.post('/addPlayer', validatePlayer, async (req, res) => {
-    const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
+    const { firstName, lastName, APT, set_score, position, nationalAssociation } = req.body;
     try {
       const player = {
         firstName,
         lastName,
         APT: parseFloat(APT),
-        set_score: parseFloat(setScore), 
+        set_score: parseFloat(set_score), 
         position,
         nationalAssociation
       };

@@ -7,7 +7,7 @@ const playerSchema = yup.object({
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   APT: yup.number().required().positive().integer(),
-  setScore: yup.number().required().positive().integer(),
+  set_score: yup.number().required().positive().integer(),
   position: yup.mixed().oneOf(validPositions, 'Position must be one of the following: defender, midfielder, attacker').required(),
   nationalAssociation: yup.mixed().oneOf(validNationalAssociations, 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales').required()
 });
