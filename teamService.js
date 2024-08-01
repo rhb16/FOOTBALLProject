@@ -1,6 +1,5 @@
 const mysql = require('mysql2');
 const connection = require('./dbConnection');
-const { getPlayerInput, askForMorePlayerDetails } = require('./inputHandler');
 const { addPlayer } = require('./playerData');
 
 const addPlayerService = async (player) => {
@@ -79,29 +78,6 @@ const searchPlayers = async (query) => {
   );
 };
 
-const startServer = (app, port) => {
-  return new Promise((resolve) => {
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-      resolve();
-    });
-  });
-};
-
-const main = async (app) => {
-  console.log('Starting application...'); 
-  await startServer(app, 3000);
-  console.log('Connected to the database.');
-  const addPlayerCallback = async (player) => {
-    if (player) {
-      await addPlayer(player);
-      askForMorePlayerDetails(addPlayerCallback);
-    } else {
-      console.log('Player data entry complete.');
-      process.exit(0); 
-    } };  
-  await getPlayerInput(addPlayerCallback);
-};
 module.exports = {
   addPlayerService,
   getPlayersFromDB,
@@ -112,6 +88,4 @@ module.exports = {
   findHighestAPT,
   findLowestAVG,
   searchPlayers,
-  startServer,
-  main
 };

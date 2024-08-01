@@ -44,7 +44,7 @@ router.post('/addPlayer', async (req, res) => {
 });
 
 // FIRST API CALL
-router.get('/api/players', async (req, res) => {
+router.get('/players', async (req, res) => {
   try {
     const players = await getPlayersFromDB();
     res.json(players);
@@ -54,7 +54,7 @@ router.get('/api/players', async (req, res) => {
 });
 
 // SECOND API CALL
-router.get('/api/selectplayers', async (req, res) => {
+router.get('/selectplayers', async (req, res) => {
   const { defendersCount, midfieldersCount, attackersCount } = req.query;
   if (!defendersCount || !midfieldersCount || !attackersCount) {
     return res.status(400).json({ error: 'Missing required query parameters' });
@@ -72,7 +72,7 @@ router.get('/api/selectplayers', async (req, res) => {
 });
 
 // THIRD API CALL
-router.get('/api/random-players', async (req, res) => {
+router.get('/random-players', async (req, res) => {
   const count = parseInt(req.query.count, 10) || 5; 
   try {
     const selectedPlayers = await randomSelectPlayers(count);
@@ -83,17 +83,17 @@ router.get('/api/random-players', async (req, res) => {
 });
 
 // FOURTH API CALL
-router.get('/api/count-players-by-position', async (req, res) => {
+router.get('/count-players-by-position', async (req, res) => {
   try {
     const counts = await countPlayersByPosition();
     res.json(counts);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status (500).json({ error: 'Internal Server Error' });
   }
 });
 
 // FIFTH API CALL
-router.get('/api/sort-by-apt', async (req, res) => {
+router.get('/sort-by-apt', async (req, res) => {
   try {
     const sortedPlayers = await sortByAPT();
     res.json(sortedPlayers);
@@ -103,7 +103,7 @@ router.get('/api/sort-by-apt', async (req, res) => {
 });
 
 // SIXTH API CALL
-router.get('/api/find-highest-apt', async (req, res) => {
+router.get('/find-highest-apt', async (req, res) => {
   try {
     const player = await findHighestAPT();
     res.json(player);
@@ -113,7 +113,7 @@ router.get('/api/find-highest-apt', async (req, res) => {
 });
 
 // SEVENTH API CALL
-router.get('/api/find-lowest-avg', async (req, res) => {
+router.get('/find-lowest-avg', async (req, res) => {
   try {
     const player = await findLowestAVG();
     res.json(player);
@@ -123,7 +123,7 @@ router.get('/api/find-lowest-avg', async (req, res) => {
 });
 
 // EIGHTH API CALL
-router.get('/api/search-players', async (req, res) => {
+router.get('/search-players', async (req, res) => {
   const query = req.query.q;
   if (!query) {
     return res.status(400).json({ error: 'Query parameter "q" is required.' });
