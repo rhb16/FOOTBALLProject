@@ -49,7 +49,10 @@ const countPlayersByPosition = async () => {
   const players = await getPlayersFromDB();
   const counts = { Defender: 0, Midfielder: 0, Attacker: 0 };
   players.forEach((player) => {
-    counts[player.position]++;
+    const position = player.position.charAt(0).toUpperCase() + player.position.slice(1).toLowerCase();
+    if (counts[position] !== undefined) {
+      counts[position]++;
+    }
   });
   return counts;
 };

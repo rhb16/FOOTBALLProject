@@ -73,7 +73,7 @@ router.get('/count-players-by-position', async (req, res) => {
     const counts = await countPlayersByPosition();
     res.json(counts);
   } catch (error) {
-    res.status (500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
