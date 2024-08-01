@@ -1,5 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const{
+  validatePlayer,
+  validateselectplayers,
+  validateSearchPlayers
+}
+=require('./validations');
+
 const {
   addPlayerService,
   getPlayersFromDB,
@@ -9,29 +16,47 @@ const {
   sortByAPT,
   findHighestAPT,
   findLowestAVG,
-  searchPlayers
-} = require('./teamService');
+  searchPlayers } = require('./teamService');
 
-router.post('/addPlayer', async (req, res) => {
+// router.post('/addPlayer', async (req, res) => {
+//   try {
+//     const validPositions = ['defender', 'midfielder', 'attacker'];
+//     const validNationalAssociations = ['england', 'northern ireland', 'scotland', 'wales'];
+//     const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
+//     if (!firstName || !lastName || isNaN(APT) || isNaN(setScore) || !position || !nationalAssociation) {
+//       return res.status(400).json({ message: 'All fields are required and APT/SET must be numbers.' });
+//     }
+//     if (!validPositions.includes(position.toLowerCase())) {
+//       return res.status(400).json({ message: 'Position must be one of the following: defender, midfielder, attacker.' });
+//     }
+//     const normalizedNationalAssociation = nationalAssociation.trim().toLowerCase();
+//     if (!validNationalAssociations.includes(normalizedNationalAssociation)) {
+//       return res.status(400).json({ message: 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales.' });
+//     }
+//     const player = {
+//       firstName,
+//       lastName,
+//       APT: parseFloat(APT),
+//       setScore: parseFloat(setScore), 
+//       position,
+//       nationalAssociation
+//     };
+//     const result = await addPlayerService(player);
+//     res.status(200).json({ message: result.message });
+//   } catch (error) {
+//     console.error('Error handling request:', error);
+//     res.status(500).json({ message: 'Internal Server Error' });
+//   }
+// });
+
+router.post('/addPlayer', validatePlayer, async (req, res) => {
   try {
-    const validPositions = ['defender', 'midfielder', 'attacker'];
-    const validNationalAssociations = ['england', 'northern ireland', 'scotland', 'wales'];
     const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
-    if (!firstName || !lastName || isNaN(APT) || isNaN(setScore) || !position || !nationalAssociation) {
-      return res.status(400).json({ message: 'All fields are required and APT/SET must be numbers.' });
-    }
-    if (!validPositions.includes(position.toLowerCase())) {
-      return res.status(400).json({ message: 'Position must be one of the following: defender, midfielder, attacker.' });
-    }
-    const normalizedNationalAssociation = nationalAssociation.trim().toLowerCase();
-    if (!validNationalAssociations.includes(normalizedNationalAssociation)) {
-      return res.status(400).json({ message: 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales.' });
-    }
     const player = {
       firstName,
       lastName,
       APT: parseFloat(APT),
-      setScore: parseFloat(setScore), 
+      setScore: parseFloat(setScore),
       position,
       nationalAssociation
     };
@@ -54,11 +79,24 @@ router.get('/players', async (req, res) => {
 });
 
 // SECOND API CALL
-router.get('/selectplayers', async (req, res) => {
+// router.get('/selectplayers', async (req, res) => {
+//   const { defendersCount, midfieldersCount, attackersCount } = req.query;
+//   if (!defendersCount || !midfieldersCount || !attackersCount) {
+//     return res.status(400).json({ error: 'Missing required query parameters' });
+//   }
+//   try {
+//     const players = await selectTeam(
+//       parseInt(defendersCount, 10),
+//       parseInt(midfieldersCount, 10),
+//       parseInt(attackersCount, 10)
+//     );
+//     res.json(players);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
+router.get('/selectplayers',validateselectplayers, async (req, res) => {
   const { defendersCount, midfieldersCount, attackersCount } = req.query;
-  if (!defendersCount || !midfieldersCount || !attackersCount) {
-    return res.status(400).json({ error: 'Missing required query parameters' });
-  }
   try {
     const players = await selectTeam(
       parseInt(defendersCount, 10),
@@ -73,7 +111,7 @@ router.get('/selectplayers', async (req, res) => {
 
 // THIRD API CALL
 router.get('/random-players', async (req, res) => {
-  const count = parseInt(req.query.count, 10) || 5; 
+  const count = parseInt(req.query.count, 10) ; 
   try {
     const selectedPlayers = await randomSelectPlayers(count);
     res.json(selectedPlayers);
@@ -123,17 +161,18 @@ router.get('/find-lowest-avg', async (req, res) => {
 });
 
 // EIGHTH API CALL
-router.get('/search-players', async (req, res) => {
+router.get('/search-players', validateSearchPlayers, async (req, res) => {
   const query = req.query.q;
-  if (!query) {
-    return res.status(400).json({ error: 'Query parameter "q" is required.' });
-  }
   try {
     const players = await searchPlayers(query);
+    if (players.length === 0) {
+      return res.status(404).json({ error: 'No players found matching the query.' });
+    }
     res.json(players);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 module.exports = router;
