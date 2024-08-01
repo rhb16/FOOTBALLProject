@@ -1,38 +1,56 @@
+const yup = require('yup');
+
 const validPositions = ['defender', 'midfielder', 'attacker'];
 const validNationalAssociations = ['england', 'northern ireland', 'scotland', 'wales'];
 
-const validatePlayer = (req, res, next) => {
-  const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
-  if (!firstName || !lastName || isNaN(APT) || isNaN(setScore) || !position || !nationalAssociation) {
-    return res.status(400).json({ message: 'All fields are required and APT/SET must be numbers.' });
+const playerSchema = yup.object({
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
+  APT: yup.number().required().positive().integer(),
+  setScore: yup.number().required().positive().integer(),
+  position: yup.mixed().oneOf(validPositions, 'Position must be one of the following: defender, midfielder, attacker').required(),
+  nationalAssociation: yup.mixed().oneOf(validNationalAssociations, 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales').required()
+});
+
+const selectPlayersSchema = yup.object({
+  defendersCount: yup.number().required().positive().integer(),
+  midfieldersCount: yup.number().required().positive().integer(),
+  attackersCount: yup.number().required().positive().integer()
+});
+
+const searchPlayersSchema = yup.object({
+  q: yup.string().required('Query parameter "q" is required.')
+});
+
+const validatePlayer = async (req, res, next) => {
+  try {
+    await playerSchema.validate(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
-  if (!validPositions.includes(position.toLowerCase())) {
-    return res.status(400).json({ message: 'Position must be one of the following: defender, midfielder, attacker.' });
-  }
-  const normalizedNationalAssociation = nationalAssociation.trim().toLowerCase();
-  if (!validNationalAssociations.includes(normalizedNationalAssociation)) {
-    return res.status(400).json({ message: 'National Association must be one of the following: England, Northern Ireland, Scotland, Wales.' });
-  }
-  next();
 };
 
-const validateselectplayers = (req, res, next) => {
-    const { defendersCount, midfieldersCount, attackersCount } = req.query;
-    if (!defendersCount || !midfieldersCount || !attackersCount) {
-      return res.status(400).json({ error: 'Missing required query parameters' });
-    }
-    next(); 
-  };
+const validateSelectPlayers = async (req, res, next) => {
+  try {
+    await selectPlayersSchema.validate(req.query);
+    next();
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
-const validateSearchPlayers = (req, res, next) => {
-    const query = req.query.q;
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter "q" is required.' });
-    }
-    next(); 
-  };
+const validateSearchPlayers = async (req, res, next) => {
+  try {
+    await searchPlayersSchema.validate(req.query);
+    next();
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
-    validatePlayer,
-    validateselectplayers,
-    validateSearchPlayers
+  validatePlayer,
+  validateSelectPlayers,
+  validateSearchPlayers
 };

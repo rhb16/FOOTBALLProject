@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const{
   validatePlayer,
-  validateselectplayers,
+  validateSelectPlayers,
   validateSearchPlayers
 }=require('./validations');
 const {
@@ -17,22 +17,22 @@ const {
   searchPlayers } = require('./teamService');
 
 router.post('/addPlayer', validatePlayer, async (req, res) => {
-  try {
     const { firstName, lastName, APT, setScore, position, nationalAssociation } = req.body;
-    const player = {
-      firstName,
-      lastName,
-      APT: parseFloat(APT),
-      setScore: parseFloat(setScore),
-      position,
-      nationalAssociation
-    };
-    const result = await addPlayerService(player);
-    res.status(200).json({ message: result.message });
-  } catch (error) {
-    console.error('Error handling request:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+    try {
+      const player = {
+        firstName,
+        lastName,
+        APT: parseFloat(APT),
+        set_score: parseFloat(setScore), 
+        position,
+        nationalAssociation
+      };
+      const result = await addPlayerService(player);
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error('Error handling request:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 
 router.get('/players', async (req, res) => {
@@ -44,7 +44,7 @@ router.get('/players', async (req, res) => {
   }
 });
 
-router.get('/selectplayers',validateselectplayers, async (req, res) => {
+router.get('/api/selectplayers', validateSelectPlayers, async (req, res) => {
   const { defendersCount, midfieldersCount, attackersCount } = req.query;
   try {
     const players = await selectTeam(
@@ -104,7 +104,7 @@ router.get('/find-lowest-avg', async (req, res) => {
   }
 });
 
-router.get('/search-players', validateSearchPlayers, async (req, res) => {
+router.get('/api/search-players', validateSearchPlayers, async (req, res) => {
   const query = req.query.q;
   try {
     const players = await searchPlayers(query);
@@ -116,4 +116,5 @@ router.get('/search-players', validateSearchPlayers, async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 module.exports = router;
