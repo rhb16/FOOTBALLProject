@@ -1,17 +1,31 @@
+// player.service.js
 const mysql = require('mysql2');
-const connection = require('./dbConnection');
-const { addPlayer } = require('./playerData');
+const connection = require('../lib/dbConnection');
 
-const addPlayerService = async (player) => {
-  try {
-    const result = await addPlayer(player);
-    return { success: true, message: 'Player added successfully!' };
-  } catch (error) {
-    console.error('Error adding player:', error);
-    throw new Error('Internal Server Error');
-  }
+// Function to add a player to the database
+const addPlayer = async (player) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      INSERT INTO players (firstName, lastName, APT, set_score, nationalAssociation, position, AVG)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+      player.firstName,
+      player.lastName,
+      player.APT,
+      player.set_score,
+      player.nationalAssociation.toLowerCase(),
+      player.position.toLowerCase(),
+      (player.APT + player.set_score) / 2
+    ];
+    connection.query(query, values, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
 };
 
+// Function to get all players from the database
 const getPlayersFromDB = async () => {
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM players', (err, results) => {
@@ -21,6 +35,7 @@ const getPlayersFromDB = async () => {
   });
 };
 
+// Function to select a team based on the number of defenders, midfielders, and attackers
 const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
   const players = await getPlayersFromDB();
   const selectedTeam = [];
@@ -39,12 +54,14 @@ const selectTeam = async (defendersCount, midfieldersCount, attackersCount) => {
   return selectedTeam.slice(0, 10);
 };
 
+// Function to randomly select a number of players
 const randomSelectPlayers = async (count) => {
   const players = await getPlayersFromDB();
   const shuffledPlayers = players.sort(() => 0.5 - Math.random());
   return shuffledPlayers.slice(0, count);
 };
 
+// Function to count players by position
 const countPlayersByPosition = async () => {
   const players = await getPlayersFromDB();
   const counts = { Defender: 0, Midfielder: 0, Attacker: 0 };
@@ -57,21 +74,25 @@ const countPlayersByPosition = async () => {
   return counts;
 };
 
+// Function to sort players by APT in descending order
 const sortByAPT = async () => {
   const players = await getPlayersFromDB();
   return players.sort((a, b) => b.APT - a.APT);
 };
 
+// Function to find the player with the highest APT
 const findHighestAPT = async () => {
   const players = await getPlayersFromDB();
   return players.reduce((max, player) => (player.APT > max.APT ? player : max), players[0]);
 };
 
+// Function to find the player with the lowest AVG
 const findLowestAVG = async () => {
   const players = await getPlayersFromDB();
   return players.reduce((min, player) => (player.AVG < min.AVG ? player : min), players[0]);
 };
 
+// Function to search players by a query string
 const searchPlayers = async (query) => {
   const players = await getPlayersFromDB();
   const lowerCaseQuery = query.toLowerCase();
@@ -82,7 +103,7 @@ const searchPlayers = async (query) => {
 };
 
 module.exports = {
-  addPlayerService,
+  addPlayer,
   getPlayersFromDB,
   selectTeam,
   randomSelectPlayers,

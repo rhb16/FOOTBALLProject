@@ -1,0 +1,25 @@
+http://localhost:3000/player/addPlayer
+{
+  "firstName": "malak",
+  "lastName": "Doe",
+  "APT": 85,
+  "set_score": 90,
+  "position": "Midfielder",
+  "nationalAssociation": "England"
+}
+
+http://localhost:3000/player/players
+
+http://localhost:3000/player/selectplayers?defendersCount=2&midfieldersCount=3&attackersCount=2
+
+http://localhost:3000/player/random-players?count=5
+
+http://localhost:3000/player/count-players-by-position
+
+http://localhost:3000/player/sort-by-apt
+
+http://localhost:3000/player/find-highest-apt
+
+http://localhost:3000/player/find-lowest-avg
+
+http://localhost:3000/player/search-players?q=John

@@ -1,12 +1,14 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const teamController = require('./teamController'); 
+const playerRoutes = require('./players/routes'); // Import the routes module
 
 const app = express();
 const port = 3000;
 
-app.use(bodyParser.json());
-app.use('/api', teamController);
+// Use express.json() middleware to parse JSON bodies in requests
+app.use(express.json());
+
+// Use the player routes
+app.use('/player', playerRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
