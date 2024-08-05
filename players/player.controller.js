@@ -1,4 +1,3 @@
-// player.controller.js
 const {
     addPlayer,
     getPlayersFromDB,
@@ -9,10 +8,9 @@ const {
     findHighestAPT,
     findLowestAVG,
     searchPlayers,
-  } = require('./player.service'); // Adjust path if necessary
+  } = require('./player.service'); 
   
-  // Handler to add a new player
-  const handleAddPlayer = async (req, res) => {
+const handleAddPlayer = async (req, res) => {
     const { firstName, lastName, APT, set_score, position, nationalAssociation } = req.body;
     try {
       const player = {
@@ -30,9 +28,8 @@ const {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
-  
-  // Handler to get all players
-  const handleGetPlayers = async (req, res) => {
+
+const handleGetPlayers = async (req, res) => {
     try {
       const players = await getPlayersFromDB();
       res.json(players);
@@ -41,8 +38,8 @@ const {
     }
   };
   
-  // Handler to select a team based on player positions
-  const handleSelectTeam = async (req, res) => {
+
+const handleSelectTeam = async (req, res) => {
     const { defendersCount, midfieldersCount, attackersCount } = req.query;
     try {
       const players = await selectTeam(
@@ -56,8 +53,8 @@ const {
     }
   };
   
-  // Handler to randomly select players
-  const handleRandomSelectPlayers = async (req, res) => {
+
+const handleRandomSelectPlayers = async (req, res) => {
     const count = parseInt(req.query.count, 10);
     try {
       const selectedPlayers = await randomSelectPlayers(count);
@@ -66,9 +63,7 @@ const {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
-  // Handler to count players by position
-  const handleCountPlayersByPosition = async (req, res) => {
+const handleCountPlayersByPosition = async (req, res) => {
     try {
       const counts = await countPlayersByPosition();
       res.json(counts);
@@ -77,8 +72,7 @@ const {
     }
   };
   
-  // Handler to sort players by APT
-  const handleSortByAPT = async (req, res) => {
+const handleSortByAPT = async (req, res) => {
     try {
       const sortedPlayers = await sortByAPT();
       res.json(sortedPlayers);
@@ -87,8 +81,8 @@ const {
     }
   };
   
-  // Handler to find the player with the highest APT
-  const handleFindHighestAPT = async (req, res) => {
+
+const handleFindHighestAPT = async (req, res) => {
     try {
       const player = await findHighestAPT();
       res.json(player);
@@ -97,8 +91,8 @@ const {
     }
   };
   
-  // Handler to find the player with the lowest AVG
-  const handleFindLowestAVG = async (req, res) => {
+
+const handleFindLowestAVG = async (req, res) => {
     try {
       const player = await findLowestAVG();
       res.json(player);
@@ -107,8 +101,7 @@ const {
     }
   };
   
-  // Handler to search players by a query string
-  const handleSearchPlayers = async (req, res) => {
+const handleSearchPlayers = async (req, res) => {
     const query = req.query.q;
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required.' });
@@ -136,4 +129,3 @@ const {
     handleFindLowestAVG,
     handleSearchPlayers,
   };
-  

@@ -28,4 +28,4 @@ router.get('/find-highest-apt', handleFindHighestAPT);
 router.get('/find-lowest-avg', handleFindLowestAVG);
 router.get('/search-players', validateSearchPlayers, handleSearchPlayers);
 
-module.exports = router; // Export the router
+module.exports = router;
