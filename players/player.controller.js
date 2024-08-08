@@ -37,86 +37,63 @@ const handleGetPlayers = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
 
-const handleSelectTeam = async (req, res) => {
-    const { defendersCount, midfieldersCount, attackersCount } = req.query;
+  const handleSelectTeam = async (req, res) => {
     try {
-      const players = await selectTeam(
-        parseInt(defendersCount, 10),
-        parseInt(midfieldersCount, 10),
-        parseInt(attackersCount, 10)
-      );
+      const { defendersCount, midfieldersCount, attackersCount } = req.query;
+      const team = await selectTeam(parseInt(defendersCount), parseInt(midfieldersCount), parseInt(attackersCount));
+      res.json(team);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  const handleRandomSelectPlayers = async (req, res) => {
+    try {
+      const { count } = req.query;
+      const players = await randomSelectPlayers(parseInt(count));
       res.json(players);
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   };
   
-
-const handleRandomSelectPlayers = async (req, res) => {
-    const count = parseInt(req.query.count, 10);
-    try {
-      const selectedPlayers = await randomSelectPlayers(count);
-      res.json(selectedPlayers);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
-const handleCountPlayersByPosition = async (req, res) => {
+  const handleCountPlayersByPosition = async (req, res) => {
     try {
       const counts = await countPlayersByPosition();
       res.json(counts);
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   };
   
-const handleSortByAPT = async (req, res) => {
+  const handleSortByAPT = async (req, res) => {
     try {
-      const sortedPlayers = await sortByAPT();
-      res.json(sortedPlayers);
+      const players = await sortByAPT();
+      res.json(players);
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   };
   
-
-const handleFindHighestAPT = async (req, res) => {
+  const handleFindHighestAPT = async (req, res) => {
     try {
       const player = await findHighestAPT();
       res.json(player);
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   };
   
-
-const handleFindLowestAVG = async (req, res) => {
+  const handleFindLowestAVG = async (req, res) => {
     try {
       const player = await findLowestAVG();
       res.json(player);
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   };
   
-const handleSearchPlayers = async (req, res) => {
-    const query = req.query.q;
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter is required.' });
-    }
-    try {
-      const players = await searchPlayers(query);
-      if (players.length === 0) {
-        return res.status(404).json({ error: 'No players found matching the query.' });
-      }
-      res.json(players);
-    } catch (error) {
-      console.error('Error handling request:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
   
   module.exports = {
     handleAddPlayer,
@@ -126,6 +103,5 @@ const handleSearchPlayers = async (req, res) => {
     handleCountPlayersByPosition,
     handleSortByAPT,
     handleFindHighestAPT,
-    handleFindLowestAVG,
-    handleSearchPlayers,
+    handleFindLowestAVG
   };

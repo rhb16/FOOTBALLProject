@@ -1,5 +1,6 @@
 const express = require('express');
 const playerRoutes = require('./players/routes'); 
+require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 const port = 3000;

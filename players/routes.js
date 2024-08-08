@@ -18,14 +18,13 @@ const {
   handleSearchPlayers,
 } = require('./player.controller');
 
-router.post('/addPlayer', validatePlayer, handleAddPlayer);
-router.get('/players', handleGetPlayers);
-router.get('/selectplayers', validateSelectPlayers, handleSelectTeam);
-router.get('/random-players', handleRandomSelectPlayers);
-router.get('/count-players-by-position', handleCountPlayersByPosition);
-router.get('/sort-by-apt', handleSortByAPT);
-router.get('/find-highest-apt', handleFindHighestAPT);
-router.get('/find-lowest-avg', handleFindLowestAVG);
-router.get('/search-players', validateSearchPlayers, handleSearchPlayers);
+router.post('/addPlayer', validatePlayer, handleAddPlayer);//working 
+router.get('/players', handleGetPlayers);//working
+router.get('/selectplayers', validateSelectPlayers, handleSelectTeam);//working
+router.get('/random-players', handleRandomSelectPlayers);//working
+router.get('/count-players-by-position', handleCountPlayersByPosition);//working
+router.get('/sort-by-apt', handleSortByAPT);//working
+router.get('/find-highest-apt', handleFindHighestAPT);//working
+router.get('/find-lowest-avg', handleFindLowestAVG);//working
 
 module.exports = router;

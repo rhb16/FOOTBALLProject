@@ -18,7 +18,6 @@ const playerSchema = yup.object({
       .required()
   });
   
-
 const selectPlayersSchema = yup.object({
   defendersCount: yup.number().required().positive().integer(),
   midfieldersCount: yup.number().required().positive().integer(),
@@ -47,17 +46,8 @@ const validateSelectPlayers = async (req, res, next) => {
   }
 };
 
-const validateSearchPlayers = async (req, res, next) => {
-  try {
-    await searchPlayersSchema.validate(req.query);
-    next();
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 
 module.exports = {
   validatePlayer,
-  validateSelectPlayers,
-  validateSearchPlayers
+  validateSelectPlayers
 };
