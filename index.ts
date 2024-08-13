@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000; 
 
 app.use(express.json());
-app.use(cors()); //cors() middleware is used to enable Cross-Origin Resource Sharing (CORS), 
+app.use(cors()); 
 
 app.use('/player', playerRoutes);
 

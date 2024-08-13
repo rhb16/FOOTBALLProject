@@ -1,6 +1,6 @@
 import { Player, Position, NationalAssociation } from './player.interface'; 
 import connection from '../lib/dbConnection'; 
-import { OkPacket } from 'mysql2'; // Type for MySQL result packet, specifically for insert operations
+import { OkPacket } from 'mysql2'; 
 
 class PlayerService {
     async addPlayer(
@@ -20,13 +20,12 @@ class PlayerService {
                     console.error('Error adding player to the database:', err); 
                     return reject(err); 
                 }
-                const insertResult = results as OkPacket; // Cast results to OkPacket to access insertId
-                console.log('Player added to the database:', insertResult.insertId); // Log the ID of the new player
-                resolve(); // Resolve the promise on success
+                const insertResult = results as OkPacket; 
+                console.log('Player added to the database:', insertResult.insertId); 
+                resolve(); 
             });
         });
     }
-
     async getAllPlayers(): Promise<Player[]> {
         const query = 'SELECT * FROM players'; 
         return new Promise((resolve, reject) => {

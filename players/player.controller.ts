@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import PlayerService from './player.service'; 
 import { Position, NationalAssociation } from './player.interface'; 
-// Initialize an instance of PlayerService to use its methods
+
 const playerService = new PlayerService();
 
 const handleAddPlayer = async (req: Request, res: Response): Promise<void> => {
@@ -89,7 +89,7 @@ export {
   handleAddPlayer,
   handleGetPlayers,
   handleSelectTeam,
-  handleSelectRandomPlayers, // Include this in the export
+  handleSelectRandomPlayers, 
   handleCountPlayersByPosition,
   handleSortByAPT,
   handleFindHighestAPT,
