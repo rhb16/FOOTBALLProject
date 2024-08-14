@@ -11,6 +11,11 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors()); 
 
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use('/player', playerRoutes);
 
 
